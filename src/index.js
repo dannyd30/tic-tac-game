@@ -2,7 +2,7 @@
 
 (() => {
 
-    const socket = io('http://localhost:3000');
+    const socket = io('https://danny-tictactoe.herokuapp.com');
     const played = [];
     attachSocketEventHandlers(socket);
     const cells = document.querySelectorAll('.cell');
