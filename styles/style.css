@@ -1,4 +1,4 @@
-body{
+/* body{
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -8,12 +8,7 @@ body>h1{
     display: flex;
     
 }
-.hide{
-    display: none !important;
-}
-.show{
-    display: flex;
-}
+
 .form{
     display: flex;
     flex-direction: row;
@@ -39,16 +34,34 @@ div.game{
 div.row{
     
     display: flex;
-    /* flex-wrap: wrap; */
+    
+}*/
+.row-one .cell{
+    border-top: 0;
+}
+.row-three .cell{
+    border-bottom: 0;
 }
 div.cell{
-    flex: 1 ;
-     background: #E9D2FF;
+    
+     /* background: #E9D2FF; */
      border: 1px solid blue;
-     justify-content: center;
-     align-items: center;
-     flex-basis: 1em;
+     margin-left: 0;
      min-height: 2em;
      font-size: 32px;
 }
 
+.cell:first-child{
+    border-left: 0;
+}
+.cell:last-child{
+    border-right: 0;
+}
+ .hide{
+    visibility: hidden;
+    width: 0;
+    height: 0;
+}
+.pt5{
+    padding-top: 5% ;
+}

@@ -3,7 +3,7 @@ const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 
-let rooms = 0;
+let rooms = [];
 
 app.use(express.static('.'));
 
@@ -16,8 +16,8 @@ io.on('connection', (socket) => {
      * We use the join method to add a room
      */
     socket.on('createRoom', (data) => {
-        rooms++;
-        let roomName = `room_number_${rooms}`;
+       
+        let roomId =getRoom();
         socket.join(roomName);
         socket.emit('newRoom',{name: data.name, room:roomName})
     });
@@ -52,5 +52,15 @@ io.on('connection', (socket) => {
     socket.on('disconnect', (data) => {
         socket.broadcast.emit('closed',data.room);
     })
-})
+});
+
+function getRoom(){
+    const roomId = parseInt(Math.random()*Date.now()).toString().slice(0,8);
+
+    if(rooms.indexOf(roomId) === -1) {
+        rooms.push(roomId);
+        return roomId;
+    } 
+    return getRoom();
+}
 server.listen(process.env.PORT || 5000);

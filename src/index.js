@@ -8,6 +8,7 @@
     const cells = document.querySelectorAll('.cell');
     const result = document.querySelector('#result');
     const player = document.querySelector('#playerOne');
+    const playerTwo = document.querySelector('#playerTwo');
     const code = document.querySelector('#code');
     const playAgainBtn = document.querySelector("#play-again");
     const startBtn = document.querySelector(".startBtn");
@@ -15,7 +16,11 @@
     const formCont = document.querySelector('.form');
     const gameCont = document.querySelector('.game');
     const joinBtn = document.querySelector('.joinBtn');
+    const backBtn = document.querySelector('#backBtn');
+    const createRoomBtn = document.querySelector('#createRoomBtn');
+    const joinRoomBtn = document.querySelector('#joinRoomBtn');
     let welcomeScreen = true;
+    let commonSelectedIndex = 0;
     const WINNERS = new Map();
     WINNERS.set('012', [0, 1, 2]);
     WINNERS.set('345', [3, 4, 5]);
@@ -62,7 +67,7 @@
     }
     const joinRoom = () => {
         const codeVal = code && code.value;
-        playerName = player && player.value;
+        playerName = playerTwo && playerTwo.value;
         if (!codeVal) result.innerHTML += 'Please enter a code to join';
         if (!playerName) result.innerHTML += 'Please enter a name to continue';
         if (codeVal && playerName) {
@@ -72,11 +77,17 @@
         currPlayer = O;
     }
     const endGame = (winner) => {
+        let turnObj = {
+            index: commonSelectedIndex,
+            room: roomId
+        };
         if (!winner) {
+            socket.emit('play', turnObj);
             socket.emit('gameEnded', { room: roomId, message: 'Game Draw :(' });
         } else {
             let msg = `${playerName} Wins!`;
             result.innerHTML = msg;
+            socket.emit('play', turnObj);
             socket.emit('gameEnded', { room: roomId, message: msg });
         }
         finish = true;
@@ -84,7 +95,9 @@
         playAgainBtn.removeClass('hide');
     }
 
-
+    function showPlayAgainBtn(){
+        playAgainBtn.removeClass('hide');
+    }
 
     const checkGame = () => {
         const gameCheck = (xPlayer) ? gameState.xState : gameState.yState;
@@ -112,6 +125,7 @@
         }
         count++;
         played.push(selectedIndex);
+        commonSelectedIndex = selectedIndex;
         if (played.length > 4) checkGame();
         // xPlayer = !xPlayer;
         if (played.length > 8) endGame();
@@ -120,7 +134,7 @@
             index: selectedIndex,
             room: roomId
         };
-
+        
         // Emit an event to update other player that you've played your turn.
         currTurn = false;
         socket.emit('play', turnObj);
@@ -159,6 +173,28 @@
     // "socket.io": "^1.7.1"
     startBtn.addEventListener('click', createGame);
     joinBtn.addEventListener('click', joinRoom);
+    backBtn.addEventListener('click', goHome);
+
+    
+    joinRoomBtn.addEventListener('click', () => {
+        startPlay('join');
+    });
+    createRoomBtn.addEventListener('click', () => {
+        startPlay('create');
+    });
+    function goHome(){
+        formCont.classList.add('hide');
+        document.querySelector('#create-container').classList.add('hide');
+        document.querySelector('#join-container').classList.add('hide');
+        document.querySelector('#homeAction').classList.remove('hide');
+    }
+    function startPlay(type){
+       formCont.classList.remove('hide');
+       const containerStr = `${type}-container`;
+       const container = document.querySelector(`#${containerStr}`);
+       container.classList.remove('hide');
+       document.querySelector('#homeAction').classList.add('hide');
+    }
     function attachSocketEventHandlers(socket) {
         socket.on('newRoom', (data) => {
             result.innerHTML = `Hello ${data.name}. Use ${data.room} to invite friend`;
@@ -184,6 +220,8 @@
         });
         socket.on('turnPlayed', function (data) {
             let dataIndex = data && data.index;
+            console.log('te')
+            console.dir(data);
             // var opponentType = player.getPlayerType() == P1 ? P2 : P1;
             handleOtherTurn(dataIndex);
 
@@ -192,6 +230,7 @@
 
         socket.on('gameEnd', function (data) {
             result.innerHTML = data && data.message || 'Other Player left!';
+            showPlayAgainBtn();
             socket.close(data.room);
         })
 
