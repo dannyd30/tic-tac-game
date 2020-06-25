@@ -2,23 +2,26 @@
 
 (() => {
 
+    /**
+     * Variable declaration starts
+     */
+
     const socket = io('https://danny-tictactoe.herokuapp.com');
     const played = [];
-    attachSocketEventHandlers(socket);
-    const cells = document.querySelectorAll('.cell');
-    const result = document.querySelector('#result');
-    const player = document.querySelector('#playerOne');
-    const playerTwo = document.querySelector('#playerTwo');
-    const code = document.querySelector('#code');
-    const playAgainBtn = document.querySelector("#play-again");
-    const startBtn = document.querySelector(".startBtn");
-    const clearBtn = document.querySelector(".clearBtn");
-    const formCont = document.querySelector('.form');
-    const gameCont = document.querySelector('.game');
-    const joinBtn = document.querySelector('.joinBtn');
-    const backBtn = document.querySelector('#backBtn');
-    const createRoomBtn = document.querySelector('#createRoomBtn');
-    const joinRoomBtn = document.querySelector('#joinRoomBtn');
+    const cells = getElement('.cell');
+    const result = getElement('#result');
+    const player = getElement('#playerOne');
+    const playerTwo =getElement('#playerTwo');
+    const code = getElement('#code');
+    const playAgainBtn = getElement("#play-again");
+    const startBtn =getElement(".startBtn");
+    const clearBtn = getElement(".clearBtn");
+    const formCont = getElement('.form');
+    const gameCont = getElement('.game');
+    const joinBtn = getElement('.joinBtn');
+    const backBtn = getElement('#backBtn');
+    const createRoomBtn = getElement('#createRoomBtn');
+    const joinRoomBtn = getElement('#joinRoomBtn');
     let welcomeScreen = true;
     let commonSelectedIndex = 0;
     const WINNERS = new Map();
@@ -44,6 +47,8 @@
         xState: [],
         yState: []
     };
+
+    attachSocketEventHandlers(socket);
 
     const startGame = (msg) => {
         result.innerHTML = msg;
@@ -101,9 +106,6 @@
 
     const checkGame = () => {
         const gameCheck = (xPlayer) ? gameState.xState : gameState.yState;
-        //[1,2,3,4,5] -> 123 145 234 245 345
-        //[2,0,5,4,8]
-
         for (let i of WINNERS.values()) {
             let won = i.every(v => gameCheck.indexOf(v.toString()) !== -1);
             if (won) {
@@ -127,7 +129,7 @@
         played.push(selectedIndex);
         commonSelectedIndex = selectedIndex;
         if (played.length > 4) checkGame();
-        // xPlayer = !xPlayer;
+        
         if (played.length > 8) endGame();
 
         let turnObj = {
@@ -135,8 +137,7 @@
             room: roomId
         };
         
-        // Emit an event to update other player that you've played your turn.
-        currTurn = false;
+         currTurn = false;
         socket.emit('play', turnObj);
 
 
@@ -169,8 +170,7 @@
         location.reload();
     }
 
-    // "express": "^4.14.0",
-    // "socket.io": "^1.7.1"
+    
     startBtn.addEventListener('click', createGame);
     joinBtn.addEventListener('click', joinRoom);
     backBtn.addEventListener('click', goHome);
@@ -245,5 +245,17 @@
             }
 
         });
+    }
+
+    /**
+     * Utility Functions
+     */
+
+    /**
+     * Function used to get the element from HTML
+     * @param {*} selector 
+     */
+    function getElement(selector){
+        return document.querySelector(selector);
     }
 })();
