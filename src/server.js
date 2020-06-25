@@ -18,8 +18,8 @@ io.on('connection', (socket) => {
     socket.on('createRoom', (data) => {
        
         let roomId =getRoom();
-        socket.join(roomName);
-        socket.emit('newRoom',{name: data.name, room:roomName})
+        socket.join(roomId);
+        socket.emit('newRoom',{name: data.name, room:roomId})
     });
 
     /**
